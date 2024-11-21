@@ -1,36 +1,31 @@
 import openai
-from dotenv import load_dotenv
 import os
+from dotenv import load_dotenv
+
+##### THIS IS A TEST FILE I USED TO CHECK IF THE API IS WORKING #### 
 
 load_dotenv()
 
-API_KEY = os.getenv("AZURE_API_KEY")
-ENDPOINT = os.getenv("AZURE_API_ENDPOINT")
-DEPLOYMENT_ID = os.getenv("AZURE_API_MODEL")  # This is the deployment ID, not the model name
-
-if not API_KEY or not ENDPOINT or not DEPLOYMENT_ID:
-    raise ValueError("Missing Azure API credentials. Check your .env file.")
-
+endpoint = os.getenv("AZURE_OPENAI_API_BASE")
+key = os.getenv("AZURE_OPENAI_API_KEY")
+deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
+api_version = os.getenv("AZURE_OPENAI_API_VERSION")
 openai.api_type = "azure"
-openai.api_base = ENDPOINT
-openai.api_version = "2023-06-01-preview"
-openai.api_key = API_KEY
+openai.api_base = endpoint
+openai.api_version = api_version
+openai.api_key = key
 
-def test_azure_gpt():
-    try:
-        response = openai.ChatCompletion.create(
-            engine=DEPLOYMENT_ID, 
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": "Hello! Can you confirm you're working?"},
-            ],
-            max_tokens=50,
-            temperature=0.5
-        )
-        print("Response from Azure GPT-4o:")
-        print(response['choices'][0]['message']['content'])
-    except Exception as e:
-        print(f"Error communicating with Azure GPT-4o: {e}")
+query = "What are the key principles of the MAMA Framework for autonomy management?"
 
-if __name__ == "__main__":
-    test_azure_gpt()
+try:
+    response = openai.ChatCompletion.create(
+        engine=deployment_name,  # Use `engine` for Azure deployments
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": query}
+        ]
+    )
+    print("Response:", response["choices"][0]["message"]["content"])
+
+except Exception as e:
+    print("Error communicating with Azure GPT-4o:", e)
